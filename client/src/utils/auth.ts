@@ -8,6 +8,9 @@ interface UserToken {
 
 // create a new class to instantiate for a user
 class AuthService {
+  getUserId(): any {
+    throw new Error('Method not implemented.');
+  }
   // get user data
   getProfile() {
     return jwtDecode(this.getToken() || '');

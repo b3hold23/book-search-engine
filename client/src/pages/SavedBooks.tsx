@@ -1,5 +1,5 @@
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
-import { deleteBook } from '../utils/API';
+// import { deleteBook } from '../utils/API';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 import type { User } from '../models/User';
@@ -8,7 +8,7 @@ import { useQuery } from '@apollo/client';
 
 const SavedBooks = () => {
   // Use useQuery to get user data from the GraphQL server
-  const { loading, error, data, refetch } = useQuery(GET_ME);
+  const { loading, error, data } = useQuery(GET_ME);
 
   // If loading, display loading message
   if (loading) return <p>Loading...</p>;
@@ -25,6 +25,7 @@ const SavedBooks = () => {
   };
 
   // Function to delete a book
+  // Function to delete a book
   const handleDeleteBook = async (bookId: string) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
@@ -33,18 +34,11 @@ const SavedBooks = () => {
     }
 
     try {
-      const response = await deleteBook(bookId, token);
+      // Execute the DELETE_BOOK mutation
 
-      if (!response.ok) {
-        throw new Error('something went wrong!');
-      }
-
-      // Update the user data after deleting the book
-      // const updatedUser = await response.json();
-      // This would be handled by useQuery automatically on next fetch
-      // or you can use a state to set if needed
+      // Update user data by using the mutation result
+      // Remove the book ID from localStorage
       removeBookId(bookId);
-      refetch();
     } catch (err) {
       console.error(err);
     }

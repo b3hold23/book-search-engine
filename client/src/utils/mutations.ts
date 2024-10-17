@@ -5,7 +5,6 @@ export const ADD_USER = gql`
         createUser(username: $username, email: $email, password: $password) {
             token
             user {
-                _id
                 username
                 email
             }
@@ -18,7 +17,6 @@ export const LOGIN_USER = gql`
         login(username: $username, email: $email, password: $password) {
             token
             user {
-                _id
                 username
                 email
             }
@@ -29,7 +27,6 @@ export const LOGIN_USER = gql`
 export const SAVE_BOOK = gql`
     mutation saveBook($user: ID!, $book: ID!) {
         saveBook(user: $user, book: $book) {
-            _id
             username
             email
             savedBooks {

@@ -1,32 +1,54 @@
 import User from "../models/User.js";
+import bcrypt from "bcrypt";
 // import Book, { BookDocument } from "../models/Book.js";
+// import type { Request, Response } from "express";
+// import { signToken } from "../utils/auth.js";
 
-const resolvers = {
+export const resolvers = {
     Query: {
-        getSingleUser: async (_parent: any, args: { id: any; username: any; }, _context: any, _info: any) => {
-            const { id, username } = args;
+        getSingleUser: async (_: any, { id, username }: { userId: string }) => {
+            try {
+                const foundUser = await User.findOne({
+                    $or: [{ _id: id }, { username }],
+                });
+                if (!foundUser) {
+                    throw new Error("Cannot find a user with this id or username!");
+                }
+                return foundUser;
+            } catch (error) {
+                throw new Error(error.message);
+            }
+        },
+    },
 
-            let query: { _id?: any, username?: any } = {}; // Update the type of the query variable
-
-            if (id) {
-                query._id = id;
-            } else if (username) {
-                query.username = username;
+    Mutation: {
+        createUser: async (_: any, { username, email, password }: { username: string, email: string, password: string }) => {
+            try {
+                const existingUser = await User.findOne({ $0r: [{ username }, {email} ]});
+                if (existingUser) {
+                    throw new Error("User already exists!");
             }
 
-            if (!id && !username) {
-                throw new Error("You must provide either an id or a username.");
-            }
+            const saltRounds = 10; 
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-            const user = await User.findOne(query).populate("savedBooks"); // Fix the typo in the model name
+            const newUser = await User.create({
+                 username,
+                 email,
+                 password: hashedPassword,
+               });
 
-            if (!user) {
-                throw new Error("Cannot find a user with that id or username.");
-            }
+               const savedUser = await newUser.save(); 
 
-            return user;
+               return {
+                id: savedUser._id,
+                username: savedUser.username,
+                email: savedUser.email,
+               };
+        } catch (error) {
+            throw new Error(error.message);
         }
+    }
 }
 };
 
-export default resolvers;
